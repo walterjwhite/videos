@@ -1,0 +1,79 @@
+#!/bin/sh
+
+. _LIBRARY_PATH/_APPLICATION_NAME/include.sh
+
+_VIDEO_PLAYER=mplayer
+
+cd $_VIDEO_BASE_PATH
+
+_watch() {
+  if [ -z "$f" ]
+  then
+    echo "Please specify video to watch"
+    exit 1
+  fi
+
+  _KEY=$(basename $f | sed -e "s/\..*$//" | sed -e "s/^\-/\\\-/")
+  _QUEUED=$(grep $_KEY queued -rl)
+
+  if [ -z "$_QUEUED" ]
+  then
+    echo "Queued video not found for: $_KEY"
+    exit 2
+  fi
+
+  _video_info $_QUEUED
+  _VIDEO=$f
+
+  $_VIDEO_PLAYER $_VIDEO 2>&1 > /dev/null
+
+  _comments
+  _move_watched_video
+  _videos_git
+
+  clear
+}
+
+_comments() {
+  echo "Please enter comments (or hit enter for none)"
+  read _COMMENTS
+
+  if [ -n "$_COMMENTS" ]
+  then
+    echo "" >> $f
+    echo "$_COMMENTS" >> $f
+  fi
+}
+
+_move_watched_video() {
+  echo "Retain video Y/n?"
+  read _RETAIN
+
+  if [ "$_RETAIN" = "n" ]
+  then
+    _TARGET=watched
+    _target
+
+    # remove downloaded file
+    rm -f $_VIDEO
+
+    mkdir -p $(dirname $f)
+
+    git mv $_QUEUED $f
+
+    _GIT_FILES="$_QUEUED $f"
+  else
+    _GIT_FILES="$_QUEUED"
+  fi
+}
+
+if [ "$#" -eq "1" ]
+then
+  f=$1
+  _watch
+else
+  for f in $(find downloaded -type f)
+  do
+    _watch
+  done
+fi

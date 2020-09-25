@@ -1,0 +1,44 @@
+#!/bin/sh
+
+. _LIBRARY_PATH/_APPLICATION_NAME/include.sh
+
+_TARGET=queued
+cd $_VIDEO_BASE_PATH
+
+_URL=$(xsel -bo)
+
+if [ -z "$_URL" ]
+then
+  echo "No video URL was found on the clipboard"
+  exit 1
+fi
+
+_PREVIOUSLY_QUEUED=$(grep "$_URL" queued watched -rcl 2>/dev/null | wc -l)
+if [ "$_PREVIOUSLY_QUEUED" -gt "0" ]
+then
+  if [ -z "$_FORCE_QUEUE" ]
+  then
+    echo "$_URL was previously queued, to queue again, please set _FORCE_QUEUE"
+    exit 2
+  fi
+fi
+
+if [ "$#" -gt "0" ]
+then
+  _COMMENTS="$1"
+  shift
+fi
+
+_target
+
+
+mkdir -p $(dirname $f)
+echo "$_URL" >  $f
+youtube-dl --get-duration -e "$_URL" >> $f
+echo "$_COMMENTS" >> $f
+
+_GIT_FILES="$f"
+_videos_git
+
+# automatically download in the background
+vd > /dev/null 2>&1 &
