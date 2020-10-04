@@ -1,10 +1,9 @@
 #!/bin/sh
 
-. _LIBRARY_PATH/git-helpers/include.sh
+. _LIBRARY_PATH_/git/include.sh
 
-# TODO: support video providers other than youtube
-_VIDEO_BASE_PATH=~/videos
-_PROJECT=$_VIDEO_BASE_PATH
+_PROJECT_PATH=_APPLICATION_DATA_PATH_
+_PROJECT=data/_APPLICATION_NAME_
 
 trap _cleanup INT
 
@@ -50,3 +49,5 @@ _video_meta() {
 _videos_git() {
   _git "$_GIT_FILES" "$_TARGET - $(head -1 $f)"
 }
+
+_git_init

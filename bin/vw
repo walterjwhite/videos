@@ -1,16 +1,16 @@
 #!/bin/sh
 
-. _LIBRARY_PATH/_APPLICATION_NAME/include.sh
+. _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
+. _LIBRARY_PATH_/install/logging.sh
 
-_VIDEO_PLAYER=mplayer
+. _APPLICATION_CONFIG_PATH_
 
-cd $_VIDEO_BASE_PATH
+cd _APPLICATION_DATA_PATH_
 
 _watch() {
   if [ -z "$f" ]
   then
-    echo "Please specify video to watch"
-    exit 1
+    exitWithError "Please specify video to watch" 1
   fi
 
   _KEY=$(basename $f | sed -e "s/\..*$//" | sed -e "s/^\-/\\\-/")
@@ -18,8 +18,7 @@ _watch() {
 
   if [ -z "$_QUEUED" ]
   then
-    echo "Queued video not found for: $_KEY"
-    exit 2
+    exitWithError "Queued video not found for: $_KEY" 2
   fi
 
   _video_info $_QUEUED

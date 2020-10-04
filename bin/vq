@@ -1,16 +1,16 @@
 #!/bin/sh
 
-. _LIBRARY_PATH/_APPLICATION_NAME/include.sh
+. _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
+. _LIBRARY_PATH_/install/logging.sh
 
 _TARGET=queued
-cd $_VIDEO_BASE_PATH
+cd _APPLICATION_DATA_PATH_
 
 _URL=$(xsel -bo)
 
 if [ -z "$_URL" ]
 then
-  echo "No video URL was found on the clipboard"
-  exit 1
+  exitWithError "No video URL was found on the clipboard" 1
 fi
 
 _PREVIOUSLY_QUEUED=$(grep "$_URL" queued watched -rcl 2>/dev/null | wc -l)
@@ -18,8 +18,7 @@ if [ "$_PREVIOUSLY_QUEUED" -gt "0" ]
 then
   if [ -z "$_FORCE_QUEUE" ]
   then
-    echo "$_URL was previously queued, to queue again, please set _FORCE_QUEUE"
-    exit 2
+    exitWithError "$_URL was previously queued, to queue again, please set _FORCE_QUEUE" 2
   fi
 fi
 

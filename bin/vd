@@ -1,18 +1,15 @@
 #!/bin/sh
 
-. _LIBRARY_PATH/_APPLICATION_NAME/include.sh
+. _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
 
-# freebsd / vlc have limited support for mkv
-# use mplayer instead
-#_OPTIONS="--no-color -q -f mp4"
 _OPTIONS="--no-color -q"
 
 _lock
 
-for f in $(find $_VIDEO_BASE_PATH/queued -type f)
+for f in $(find _APPLICATION_DATA_PATH_/queued -type f)
 do
   _video_meta
-  _OUTPUT=$_VIDEO_BASE_PATH/downloaded/${_KEY}.mp4
+  _OUTPUT=_APPLICATION_DATA_PATH_/downloaded/${_KEY}.mp4
 
   if [ ! -e $_OUTPUT ]
   then

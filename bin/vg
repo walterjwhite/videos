@@ -1,8 +1,8 @@
 #!/bin/sh
 
-. _LIBRARY_PATH/_APPLICATION_NAME/include.sh
+. _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
 
-for f in $(find $_VIDEO_BASE_PATH/queued -type f)
+for f in $(find _APPLICATION_DATA_PATH_/queued -type f)
 do
   _video_info
 done
