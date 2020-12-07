@@ -4,6 +4,8 @@
 
 . _APPLICATION_CONFIG_PATH_
 
+_ACTION=watch
+
 cd _APPLICATION_DATA_PATH_
 
 _watch() {
@@ -49,8 +51,7 @@ _move_watched_video() {
 
   if [ "$_RETAIN" = "n" ]
   then
-    _TARGET=watched
-    _target
+    f=watched/$(_target)
 
     # remove downloaded file
     rm -f $_VIDEO

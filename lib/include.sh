@@ -5,7 +5,11 @@
 _PROJECT_PATH=_APPLICATION_DATA_PATH_
 _PROJECT=data/_APPLICATION_NAME_
 
-trap _cleanup INT
+# TODO: move to configuration
+_VIDEO_FORMAT=mp4
+_AUDIO_FORMAT=ogg
+
+trap _cleanup 0 1 2 INT
 
 _LOCKFILE=/tmp/$(basename $0).lock
 
@@ -24,7 +28,7 @@ _cleanup() {
 }
 
 _target() {
-  f=$_TARGET/$(date +%Y/%m/%d/%H.%M.%S)
+  date +%Y/%m/%d/%H.%M.%S
 }
 
 _video_info() {
@@ -47,7 +51,7 @@ _video_meta() {
 }
 
 _videos_git() {
-  _git "$_GIT_FILES" "$_TARGET - $(head -1 $f)"
+  _git "$_GIT_FILES" "$_ACTION - $(head -1 $f)"
 }
 
 _git_init

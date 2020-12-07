@@ -2,21 +2,51 @@
 
 . _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
 
+_ACTION=download
+
 _OPTIONS="--no-color -q"
+_OUTPUT_FORMAT=$_VIDEO_FORMAT
 
-_lock
+#_lock
 
-for f in $(find _APPLICATION_DATA_PATH_/queued -type f)
+cd _APPLICATION_DATA_PATH_
+
+for _ARG in $@
 do
-  _video_meta
-  _OUTPUT=_APPLICATION_DATA_PATH_/downloaded/${_KEY}.mp4
-
-  if [ ! -e $_OUTPUT ]
-  then
-    echo "downloading $(_video_info)"
-
-    youtube-dl $_OPTIONS "$_URL" -o $_OUTPUT
-  fi
+  case $_ARG in
+    -a|--audio-only)
+      _OPTIONS="$_OPTIONS -x"
+      _OUTPUT_FORMAT=$_AUDIO_FORMAT
+      ;;
+    *)
+      f=$_ARG
+      ;;
+  esac
 done
 
-_cleanup
+_video_meta
+_OUTPUT=downloaded/${_KEY}.${_OUTPUT_FORMAT}
+
+if [ ! -e $_OUTPUT ]
+then
+  info "downloading $(_video_info)"
+
+  youtube-dlc $_OPTIONS "$_URL" -o $_OUTPUT
+
+  # problem downloading
+  _status=$?
+  if [ $_status -eq 1 ]
+  then
+    # move video to error
+    errorf=error/$(_target)
+
+    mkdir -p $(dirname $errorf)
+
+    git mv $f $errorf
+    f=$errorf
+    _ACTION="download error"
+    _videos_git
+
+    exitWithError "Error downloading video - $_KEY" $_status
+  fi
+fi
