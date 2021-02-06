@@ -7,48 +7,41 @@ cd _APPLICATION_DATA_PATH_
 
 _URL=$(xsel -bo)
 
-if [ -z "$_URL" ]
-then
-  exitWithError "No video URL was found on the clipboard" 1
+if [ -z "$_URL" ]; then
+	exitWithError "No video URL was found on the clipboard" 1
 fi
 
-if [ "$#" -gt "0" ]
-then
-  for _ARG in $@
-  do
-    case $_ARG in
-      -f)
-        _FORCE_QUEUE=1
-        ;;
-      -*)
-        _OPTIONS="$_OPTIONS $_ARG"
-        ;;
-      *)
-        _COMMENTS="$_ARG"
-        ;;
-    esac
-  done
+if [ "$#" -gt "0" ]; then
+	for _ARG in $@; do
+		case $_ARG in
+		-f)
+			_FORCE_QUEUE=1
+			;;
+		-*)
+			_OPTIONS="$_OPTIONS $_ARG"
+			;;
+		*)
+			_COMMENTS="$_ARG"
+			;;
+		esac
+	done
 fi
 
 _PREVIOUSLY_QUEUED=$(grep "$_URL" queued watched -rcl 2>/dev/null | wc -l)
-if [ "$_PREVIOUSLY_QUEUED" -gt "0" ]
-then
-  if [ -z "$_FORCE_QUEUE" ]
-  then
-    exitWithError "$_URL was previously queued, to queue again, please set _FORCE_QUEUE" 2
-  fi
+if [ "$_PREVIOUSLY_QUEUED" -gt "0" ]; then
+	if [ -z "$_FORCE_QUEUE" ]; then
+		exitWithError "$_URL was previously queued, to queue again, please set _FORCE_QUEUE" 2
+	fi
 fi
 
 f=queued/$(_target)
 
-
 mkdir -p $(dirname $f)
-echo "$_URL" >  $f
-youtube-dl --get-duration -e "$_URL" >> $f
+echo "$_URL" >$f
+youtube-dl --get-duration -e "$_URL" >>$f
 
-if [ -n "$_COMMENTS" ]
-then
-  echo "$_COMMENTS" >> $f
+if [ -n "$_COMMENTS" ]; then
+	echo "$_COMMENTS" >>$f
 fi
 
 _GIT_FILES="$f"

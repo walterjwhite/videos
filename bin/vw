@@ -9,70 +9,69 @@ _ACTION=watch
 cd _APPLICATION_DATA_PATH_
 
 _watch() {
-  if [ -z "$f" ]
-  then
-    exitWithError "Please specify video to watch" 1
-  fi
+	if [ -z "$f" ]; then
+		exitWithError "Please specify video to watch" 1
+	fi
 
-  _KEY=$(basename $f | sed -e "s/\..*$//" | sed -e "s/^\-/\\\-/")
-  _QUEUED=$(grep $_KEY queued -rl)
+	_KEY=$(basename $f | sed -e "s/\..*$//" | sed -e "s/^\-/\\\-/")
+	_QUEUED=$(grep $_KEY queued -rl)
 
-  if [ -z "$_QUEUED" ]
-  then
-    exitWithError "Queued video not found for: $_KEY" 2
-  fi
+	if [ -z "$_QUEUED" ]; then
+		exitWithError "Queued video not found for: $_KEY" 2
+	fi
 
-  _video_info $_QUEUED
-  _VIDEO=$f
+	_video_info $_QUEUED
+	_VIDEO=$f
 
-  $_VIDEO_PLAYER $_VIDEO 2>&1 > /dev/null
+	$_VIDEO_PLAYER $_VIDEO 2>&1 >/dev/null
 
-  _comments
-  _move_watched_video
-  _videos_git
+	_comments
+	_move_watched_video
+	_videos_git
 
-  clear
+	clear
 }
 
 _comments() {
-  echo "Please enter comments (or hit enter for none)"
-  read _COMMENTS
+	echo "Please enter comments (or hit enter for none)"
+	read _COMMENTS
 
-  if [ -n "$_COMMENTS" ]
-  then
-    echo "" >> $f
-    echo "$_COMMENTS" >> $f
-  fi
+	if [ -n "$_COMMENTS" ]; then
+		echo "" >>$f
+		echo "$_COMMENTS" >>$f
+	fi
 }
 
 _move_watched_video() {
-  echo "Retain video Y/n?"
-  read _RETAIN
+	echo "Retain video Y/n?"
+	read _RETAIN
 
-  if [ "$_RETAIN" = "n" ]
-  then
-    f=watched/$(_target)
+	if [ "$_RETAIN" = "n" ]; then
+		f=watched/$(_target)
 
-    # remove downloaded file
-    rm -f $_VIDEO
+		# remove downloaded file
+		rm -f $_VIDEO
 
-    mkdir -p $(dirname $f)
+		mkdir -p $(dirname $f)
 
-    git mv $_QUEUED $f
+		git mv $_QUEUED $f
 
-    _GIT_FILES="$_QUEUED $f"
-  else
-    _GIT_FILES="$_QUEUED"
-  fi
+		_GIT_FILES="$_QUEUED $f"
+	else
+		_GIT_FILES="$_QUEUED"
+	fi
 }
 
-if [ "$#" -eq "1" ]
-then
-  f=$1
-  _watch
+if [ "$#" -eq "1" ]; then
+	f=$1
+
+	if [ ! -e $f ]; then
+		f=$(find downloaded -type f | grep $f | grep -v \\.part$)
+	fi
+
+	_watch
 else
-  for f in $(find downloaded -type f)
-  do
-    _watch
-  done
+	for f in $(find downloaded -type f | grep -v \\.part$); do
+		_watch
+	done
 fi

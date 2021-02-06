@@ -1,0 +1,51 @@
+#!/bin/sh
+
+. _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
+
+. _APPLICATION_CONFIG_PATH_
+
+# video history
+cd _APPLICATION_DATA_PATH_
+
+# filter by category (error, watched, queued, downloaded)
+# filter by date
+_CATEGORIES="downloaded error queued watched"
+
+if [ "$#" -gt "0" ]; then
+	for _ARG in $@; do
+		case $_ARG in
+		-c)
+			_CATEGORIES="$_ARG"
+			;;
+			#   -s=*)
+			#     _START=${_ARG#*=}
+			#     ;;
+			#   -e=*)
+			#     _END=${_ARG#*=}
+			#     ;;
+		-d=*)
+			_DATE=${_ARG#*=}
+			;;
+		-r=*)
+			info "Listing videos watched ${_ARG#*=} day(s) ago"
+
+			_RELATIVE_TIME=$(echo "$(date +%s) - (${_ARG#*=} * 24 * 60 *60)" | bc)
+			_DATE=$(date -r $_RELATIVE_TIME +%Y/%m/%d)
+			;;
+		*) ;;
+
+		esac
+	done
+fi
+
+if [ -n "$_DATE" ]; then
+	for _CATEGORY in $_CATEGORIES; do
+		for f in $(find $_CATEGORY/$_DATE -type f 2>/dev/null); do
+			_video_info
+		done
+	done
+else
+	for f in $(find $_CATEGORIES -type f 2>/dev/null | sort -n); do
+		_video_info
+	done
+fi

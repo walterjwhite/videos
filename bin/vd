@@ -11,42 +11,39 @@ _OUTPUT_FORMAT=$_VIDEO_FORMAT
 
 cd _APPLICATION_DATA_PATH_
 
-for _ARG in $@
-do
-  case $_ARG in
-    -a|--audio-only)
-      _OPTIONS="$_OPTIONS -x"
-      _OUTPUT_FORMAT=$_AUDIO_FORMAT
-      ;;
-    *)
-      f=$_ARG
-      ;;
-  esac
+for _ARG in $@; do
+	case $_ARG in
+	-a | --audio-only)
+		_OPTIONS="$_OPTIONS -x"
+		_OUTPUT_FORMAT=$_AUDIO_FORMAT
+		;;
+	*)
+		f=$_ARG
+		;;
+	esac
 done
 
 _video_meta
 _OUTPUT=downloaded/${_KEY}.${_OUTPUT_FORMAT}
 
-if [ ! -e $_OUTPUT ]
-then
-  info "downloading $(_video_info)"
+if [ ! -e $_OUTPUT ]; then
+	info "downloading $(_video_info)"
 
-  youtube-dlc $_OPTIONS "$_URL" -o $_OUTPUT
+	youtube-dlc $_OPTIONS "$_URL" -o $_OUTPUT
 
-  # problem downloading
-  _status=$?
-  if [ $_status -eq 1 ]
-  then
-    # move video to error
-    errorf=error/$(_target)
+	# problem downloading
+	_status=$?
+	if [ $_status -eq 1 ]; then
+		# move video to error
+		errorf=error/$(_target)
 
-    mkdir -p $(dirname $errorf)
+		mkdir -p $(dirname $errorf)
 
-    git mv $f $errorf
-    f=$errorf
-    _ACTION="download error"
-    _videos_git
+		git mv $f $errorf
+		f=$errorf
+		_ACTION="download error"
+		_videos_git
 
-    exitWithError "Error downloading video - $_KEY" $_status
-  fi
+		exitWithError "Error downloading video - $_KEY" $_status
+	fi
 fi

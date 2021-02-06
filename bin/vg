@@ -2,7 +2,6 @@
 
 . _LIBRARY_PATH_/_APPLICATION_NAME_/include.sh
 
-for f in $(find _APPLICATION_DATA_PATH_/queued -type f)
-do
-  _video_info
+for f in $(find _APPLICATION_DATA_PATH_/queued -type f); do
+	_video_info
 done
