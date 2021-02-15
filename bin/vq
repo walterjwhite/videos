@@ -5,17 +5,14 @@ _ACTION=queue
 
 cd _APPLICATION_DATA_PATH_
 
-_URL=$(xsel -bo)
-
-if [ -z "$_URL" ]; then
-	exitWithError "No video URL was found on the clipboard" 1
-fi
-
 if [ "$#" -gt "0" ]; then
 	for _ARG in $@; do
 		case $_ARG in
 		-f)
 			_FORCE_QUEUE=1
+			;;
+		-v=*)
+			_URL="${_ARG#*=}"
 			;;
 		-*)
 			_OPTIONS="$_OPTIONS $_ARG"
@@ -25,6 +22,14 @@ if [ "$#" -gt "0" ]; then
 			;;
 		esac
 	done
+fi
+
+if [ -z "$_URL" ]; then
+	_URL=$(xsel -bo)
+
+	if [ -z "$_URL" ]; then
+		exitWithError "No video URL was found on the clipboard" 1
+	fi
 fi
 
 _PREVIOUSLY_QUEUED=$(grep "$_URL" queued watched -rcl 2>/dev/null | wc -l)
