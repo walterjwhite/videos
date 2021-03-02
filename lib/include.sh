@@ -9,23 +9,6 @@ _PROJECT=data/_APPLICATION_NAME_
 _VIDEO_FORMAT=mp4
 _AUDIO_FORMAT=ogg
 
-trap _cleanup 0 1 2 INT
-
-_LOCKFILE=/tmp/$(basename $0).lock
-
-_lock() {
-	while [ -e $_LOCKFILE ]; do
-		echo "$_LOCKFILE exists, sleeping"
-		sleep 5
-	done
-
-	touch $_LOCKFILE
-}
-
-_cleanup() {
-	rm -f $_LOCKFILE
-}
-
 _target() {
 	date +%Y/%m/%d/%H.%M.%S
 }
@@ -37,8 +20,8 @@ _video_info() {
 	fi
 
 	if [ -e $_f ]; then
-		echo $_f
-		echo "$(sed -n 1p $_f) - $(sed -n 2p $_f) @ $(sed -n 3p $_f)"
+		debug $_f
+		info "$(sed -n 1p $_f) - $(sed -n 2p $_f) @ $(sed -n 3p $_f)"
 	fi
 }
 

@@ -4,9 +4,28 @@
 
 . _APPLICATION_CONFIG_PATH_
 
+# we can only watch 1 video at a time
+_lock
+
 _ACTION=watch
 
 cd _APPLICATION_DATA_PATH_
+
+if [ "$#" -gt "0" ]; then
+	for _ARG in $@; do
+		case $_ARG in
+		-c)
+			# send the video to a chromecast device
+			_CHROMECAST=1
+			;;
+		-c=*)
+			# send the video to a chromecast device
+			_CHROMECAST=1
+			_CHROMECAST_ARGUMENTS="${_ARG#*=}"
+			;;
+		esac
+	done
+fi
 
 _watch() {
 	if [ -z "$f" ]; then
@@ -23,7 +42,13 @@ _watch() {
 	_video_info $_QUEUED
 	_VIDEO=$f
 
-	$_VIDEO_PLAYER $_VIDEO 2>&1 >/dev/null
+	if [ -n "$_CHROMECAST" ]; then
+		info "Playing $_QUEUED on chromecast"
+
+		castnow $_CHROMECAST_ARGUMENTS $_VIDEO
+	else
+		$_VIDEO_PLAYER $_VIDEO 2>&1 >/dev/null
+	fi
 
 	_comments
 	_move_watched_video
@@ -33,20 +58,21 @@ _watch() {
 }
 
 _comments() {
-	echo "Please enter comments (or hit enter for none)"
-	read _COMMENTS
+	_read_if "Please enter comments (or hit enter for none)" _COMMENTS
 
 	if [ -n "$_COMMENTS" ]; then
-		echo "" >>$f
-		echo "$_COMMENTS" >>$f
+		echo "" >>$_QUEUED
+		echo "$_COMMENTS" >>$_QUEUED
 	fi
 }
 
 _move_watched_video() {
-	echo "Retain video Y/n?"
-	read _RETAIN
+	_read_if "Retain video?" _RETAIN "N/y"
 
-	if [ "$_RETAIN" = "n" ]; then
+	if [ "$_RETAIN" = "y" ]; then
+		_GIT_FILES="$_QUEUED"
+		f=$_QUEUED
+	else
 		f=watched/$(_target)
 
 		# remove downloaded file
@@ -57,8 +83,6 @@ _move_watched_video() {
 		git mv $_QUEUED $f
 
 		_GIT_FILES="$_QUEUED $f"
-	else
-		_GIT_FILES="$_QUEUED"
 	fi
 }
 

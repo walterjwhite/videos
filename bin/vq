@@ -35,7 +35,7 @@ fi
 _PREVIOUSLY_QUEUED=$(grep "$_URL" queued watched -rcl 2>/dev/null | wc -l)
 if [ "$_PREVIOUSLY_QUEUED" -gt "0" ]; then
 	if [ -z "$_FORCE_QUEUE" ]; then
-		exitWithError "$_URL was previously queued, to queue again, please set _FORCE_QUEUE" 2
+		exitWithError "$_URL was previously queued, to queue again, please set _FORCE_QUEUE (-f)" 2
 	fi
 fi
 
