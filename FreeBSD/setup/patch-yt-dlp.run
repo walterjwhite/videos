@@ -1,0 +1,13 @@
+#!/bin/sh
+
+import git:install/download.sh
+
+_YT_DLP_VERSION=$(curl -qs https://api.github.com/repos/yt-dlp/yt-dlp/tags | grep name | head -1 | awk {'print$2'} | sed -e 's/\"//g' -e 's/,$//')
+_YT_DLP_TARGET_FILENAME=/usr/local/bin/yt-dlp
+
+_warn "Patching FreeBSD yt-dlp ($_YT_DLP_VERSION)"
+
+_download "https://github.com/yt-dlp/yt-dlp/releases/download/$_YT_DLP_VERSION/yt-dlp"
+_download_install_file $_YT_DLP_TARGET_FILENAME
+
+$_SUDO_CMD chmod +x $_YT_DLP_TARGET_FILENAME

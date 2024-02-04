@@ -1,0 +1,9 @@
+#!/bin/sh
+
+import videos.sh
+
+_git_init
+
+find watched -type f -exec head -1 {} \; | cut -f3 -d'|' |
+	$_CONF_INSTALL_GNU_GREP -P '[\d]{2}\:[\d]{2}\:[\d]{2}' |
+	awk -F':' '{sum += $1*3600 + $2*60 + $3;} END{print sum/3600}'
