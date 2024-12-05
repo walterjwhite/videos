@@ -1,0 +1,36 @@
+#!/bin/sh
+
+import videos.sh
+import videos-download.sh
+
+_has_other_instances && {
+	_warn "Other download running"
+	exit 0
+}
+
+_ACTION=download
+_PREFIX=downloaded
+
+_configure $_CONF_INSTALL_CONFIG_PATH/git
+_git_init
+
+_VIDEOS_DOWNLOADED=0
+while [ 1 ]; do
+	_VIDEO_FILE=$(find queued -type f -print -quit)
+	if [ -z "$_VIDEO_FILE" ]; then
+		if [ $_VIDEOS_DOWNLOADED -gt 0 ]; then
+			_success "Download queue is empty, processed $_VIDEOS_DOWNLOADED video(s)"
+		fi
+
+		_error "No videos downloaded"
+	fi
+
+	if [ $_VIDEOS_DOWNLOADED -gt 0 ]; then
+		printf '\n'
+	fi
+
+	_video_download
+	_VIDEOS_DOWNLOADED=$(($_VIDEOS_DOWNLOADED + 1))
+
+	unset _EXTRACT_AUDIO _VIDEO_PROFILES _IS_PLAYLIST _OPTIONS _VIDEO_URL _VIDEO_KEY _VIDEO_TITLE _VIDEO_DURATION _VIDEO_DATE _VIDEO_UPLOADER_ID _VIDEO_UPLOADER_NAME
+done
